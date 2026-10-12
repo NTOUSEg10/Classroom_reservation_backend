@@ -12,12 +12,24 @@
   "before_user_created_hook_enabled": true,
   "before_user_created_hook_function": "public.ntou_google_signup_gate",
   "local_redirect_urls_verified": true,
-  "google_cloud_checked_at_utc": "2026-10-12T22:26:50+00:00",
+  "google_cloud_checked_at_utc": "2026-10-12T22:37:18+00:00",
   "google_cloud_project_id": "ntou-classroom-reservation",
   "google_brand_configured": true,
-  "google_basic_scopes_configured": ["openid", "userinfo.email", "userinfo.profile"],
-  "google_oauth_client_creation": "prepared_awaiting_user",
-  "google_provider_verified": false,
+  "google_basic_scopes_configured": [
+    "openid",
+    "userinfo.email",
+    "userinfo.profile"
+  ],
+  "google_oauth_client_creation": "created",
+  "google_provider_verified": true,
+  "google_client_id_matches_created_client": true,
+  "email_provider_disabled": true,
+  "anonymous_provider_disabled": true,
+  "all_other_providers_disabled": true,
+  "google_skip_nonce_checks": false,
+  "google_allow_users_without_email": false,
+  "local_google_authorization_page_reached": true,
+  "school_account_acceptance": "awaiting_user_signin",
   "local_google_flow_verified": false,
   "production_deployment": "deferred_by_user"
 }

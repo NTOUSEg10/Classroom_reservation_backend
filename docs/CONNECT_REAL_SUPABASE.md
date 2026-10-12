@@ -39,9 +39,10 @@ Edge Function 的 DISPATCH_API_KEY 必須等於後端 worker 使用的 server ke
 - 應用使用獨立 ntou_api LOGIN／ntou_backend membership；沒有 superuser、bypass RLS、建立 DB 或角色的權限。owner 連線另存私有 migration 設定。
 - 本機到 Session pooler 為 TLS 1.3，憑證及 hostname 驗證通過；FastAPI health、教室查詢與公開設定皆回 200，DEMO_DATA=false。
 - 未匯入 Demo seed；目前正式教室清單為空，須提供校方確認資料。
-- 清理後後端 210 項 pytest、前端 45 項測試通過。Google provider／完整校園登入需後續 OAuth client 設定與實際帳號驗證，不能用 fixture 結果替代。
+- 清理後後端 210 項 pytest、前端 45 項測試通過。Google provider 設定已完成；完整校園登入仍待實際帳號驗證，不能用 fixture 結果替代。
 - Dashboard 已確認 Before User Created hook 為 ENABLED，函式 `public.ntou_google_signup_gate`；Site URL 與兩個精確本機 callback 已儲存。
-- Google Cloud 專案 `ntou-classroom-reservation` 已建立品牌「海大教室借用平台」與三個基本身分 scopes；Web client 的網址表單已準備，尚待使用者建立 client、將產生的憑證填入 Supabase 並儲存。這個中間狀態不代表 Google 登入已通過驗收。
+- Google Cloud 專案 `ntou-classroom-reservation` 已建立品牌「海大教室借用平台」、三個基本身分 scopes 及 Web client；使用者已將憑證儲存於 Supabase。Dashboard 與真實 Auth settings API 已確認 Google 啟用，Email、anonymous 與其他 provider 停用；nonce checks 與 email 要求維持啟用。
+- 真實本機登入按鈕已成功導向 Google 授權頁，使用已建立的 client 與 Supabase callback。尚待本人學校帳號授權、PKCE 回送與首次資料驗收；到達 Google 頁面不等於完整登入成功。
 
 ## 真實本機登入驗收
 
