@@ -232,11 +232,15 @@ async def add_profile(
 
 
 async def application_pool(dsn: str) -> asyncpg.Pool:
-    async def setup(connection):
-        await connection.execute("SET ROLE ntou_backend")
+    from app.database import initialize_connection, reset_connection
 
     return await asyncpg.create_pool(
-        dsn, min_size=2, max_size=20, setup=setup, command_timeout=5
+        dsn,
+        min_size=2,
+        max_size=20,
+        init=initialize_connection,
+        reset=reset_connection,
+        command_timeout=5,
     )
 
 

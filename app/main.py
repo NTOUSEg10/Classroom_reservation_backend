@@ -1,6 +1,7 @@
 import asyncio
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timedelta, timezone
+from time import perf_counter
 from typing import Callable
 from uuid import UUID, uuid4
 
@@ -22,6 +23,7 @@ from fastapi.responses import JSONResponse
 from .auth import (
     campus_identity,
     current_admin,
+    current_eligibility_user,
     current_user,
     rate_limit,
     response_json,
@@ -31,9 +33,11 @@ from .config import Settings, database_ssl_context
 from .database import (
     RESERVATION_SELECT,
     audit,
+    initialize_connection,
     notify,
     points_for,
     reservation_detail,
+    reset_connection,
     transaction,
 )
 from .models import (
@@ -74,10 +78,6 @@ def create_app(
     async def lifespan(app):
         owned_pool = pool is None
         if pool is None and settings.database_url:
-
-            async def setup_connection(connection):
-                await connection.execute("SET ROLE ntou_backend")
-
             app.state.pool = await asyncpg.create_pool(
                 dsn=settings.database_url,
                 min_size=settings.pool_min_size,
@@ -88,7 +88,8 @@ def create_app(
                     "search_path": "public",
                     "statement_timeout": "1800",
                 },
-                setup=setup_connection,
+                init=initialize_connection,
+                reset=reset_connection,
             )
         if settings.environment == "production" and app.state.pool:
             async with app.state.pool.acquire() as conn:
@@ -158,6 +159,7 @@ def create_app(
 
     @app.middleware("http")
     async def security_headers(request: Request, call_next):
+        started_at = perf_counter()
         local_health = (
             request.url.path == "/api/health"
             and request.client
@@ -168,25 +170,30 @@ def create_app(
             and request.url.scheme != "https"
             and not local_health
         ):
-            return JSONResponse(
+            response = JSONResponse(
                 {"detail": "請使用 HTTPS 連線"}, status_code=400
             )
-        if app.state.pool is None and request.url.path not in {
+        elif app.state.pool is None and request.url.path not in {
             "/api/config",
             "/api/health",
             "/api/docs",
             "/openapi.json",
             "/api/auth/login",
         }:
-            return JSONResponse(
+            response = JSONResponse(
                 {"detail": "資料庫服務尚未設定"}, status_code=503
             )
-        response = await call_next(request)
+        else:
+            response = await call_next(request)
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["Cache-Control"] = "no-store"
         if settings.environment == "production":
             response.headers["Strict-Transport-Security"] = (
                 "max-age=31536000; includeSubDomains"
+            )
+        if request.url.path.startswith("/api/"):
+            response.headers["Server-Timing"] = (
+                f"app;dur={(perf_counter() - started_at) * 1000:.2f}"
             )
         return response
 
@@ -338,10 +345,9 @@ def create_app(
         return dict(result)
 
     @app.get("/api/me/eligibility")
-    async def eligibility(user=Depends(current_user)):
+    async def eligibility(user=Depends(current_eligibility_user)):
         profile = user["profile"]
-        async with app.state.pool.acquire() as conn:
-            points = await points_for(conn, profile["id"])
+        points = user["violation_points"]
         eligible = (
             profile["verified"] and not profile["suspended"] and points < 3
         )

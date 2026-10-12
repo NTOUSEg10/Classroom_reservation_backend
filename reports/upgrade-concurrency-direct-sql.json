@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-12T21:57:08.678241+00:00",
+  "generated_at": "2026-10-12T22:53:16.254194+00:00",
   "environment": {
     "platform": "Windows-11-10.0.26200-SP0",
     "python": "3.12.10",
@@ -12,14 +12,14 @@
     "23P01": 99
   },
   "approved_rows": 1,
-  "dispatch_spread_ms": 23.488,
+  "dispatch_spread_ms": 33.75,
   "blocked_connections_before_winner_commit": 99,
   "explicit_transaction_overlap": true,
   "latency": {
     "count": 100,
-    "p50_ms": 204.692,
-    "p95_ms": 208.031,
-    "max_ms": 208.981,
+    "p50_ms": 185.959,
+    "p95_ms": 191.645,
+    "max_ms": 197.636,
     "statuses": {}
   },
   "note": "Winner is deliberately held uncommitted until all 99 competing connections wait on PostgreSQL locks; these durations include that hold and are not API SLA measurements. Every losing transaction rolls back with SQLSTATE 23P01."

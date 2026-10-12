@@ -148,17 +148,33 @@ async def campus_identity(request: Request):
     return {"id": user_id, "email": email, "auth_user": auth_user}
 
 
-async def current_user(request: Request):
+async def _current_user(request: Request, *, with_points=False):
     identity = await campus_identity(request)
+    query = "SELECT * FROM profiles WHERE id=$1"
+    if with_points:
+        query = """SELECT p.*,
+          (SELECT COALESCE(sum(v.points),0)::int FROM violations v
+            WHERE v.user_id=p.id AND NOT v.resolved) AS violation_points
+          FROM profiles p WHERE p.id=$1"""
     async with request.app.state.pool.acquire() as conn:
-        profile = await conn.fetchrow(
-            "SELECT * FROM profiles WHERE id=$1", identity["id"]
-        )
+        profile = await conn.fetchrow(query, identity["id"])
     if not profile:
         raise HTTPException(403, "請先完成基本資料")
     if profile["email"] != identity["email"]:
         raise HTTPException(403, "校園帳號資料不符，請洽管理員")
-    return {"profile": dict(profile), "auth_user": identity["auth_user"]}
+    profile = dict(profile)
+    user = {"profile": profile, "auth_user": identity["auth_user"]}
+    if with_points:
+        user["violation_points"] = profile.pop("violation_points")
+    return user
+
+
+async def current_user(request: Request):
+    return await _current_user(request)
+
+
+async def current_eligibility_user(request: Request):
+    return await _current_user(request, with_points=True)
 
 
 async def current_admin(request: Request):

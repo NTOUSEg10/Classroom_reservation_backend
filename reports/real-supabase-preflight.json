@@ -29,7 +29,11 @@
   "google_skip_nonce_checks": false,
   "google_allow_users_without_email": false,
   "local_google_authorization_page_reached": true,
-  "school_account_acceptance": "awaiting_user_signin",
-  "local_google_flow_verified": false,
+  "school_account_acceptance": "verified",
+  "local_google_flow_verified": true,
+  "school_account_checked_at_utc": "2026-10-12T23:09:53+00:00",
+  "token_refresh_verified": false,
+  "real_device_push_verified": false,
+  "nfr006_real_environment_passed": false,
   "production_deployment": "deferred_by_user"
 }

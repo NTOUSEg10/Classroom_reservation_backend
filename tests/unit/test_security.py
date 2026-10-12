@@ -148,3 +148,57 @@ async def test_disabled_password_login_does_not_parse_or_echo_password():
         )
     assert response.status_code == 403
     assert secret not in response.text
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "path,pool,status",
+    [
+        ("/api/config", None, 200),
+        ("/api/me", None, 503),
+        ("/api/me", object(), 401),
+    ],
+)
+async def test_api_server_timing_measures_elapsed_ms_without_metadata(
+    monkeypatch, path, pool, status
+):
+    ticks = iter([2.0, 2.125])
+    monkeypatch.setattr("app.main.perf_counter", lambda: next(ticks))
+    app = create_app(Settings(environment="test", _env_file=None), pool=pool)
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get(path)
+    assert response.status_code == status
+    assert response.headers["Server-Timing"] == "app;dur=125.00"
+    assert response.headers["X-Content-Type-Options"] == "nosniff"
+    assert response.headers["Cache-Control"] == "no-store"
+    with pytest.raises(StopIteration):
+        next(ticks)
+
+
+@pytest.mark.asyncio
+async def test_server_timing_includes_https_rejection_and_hsts(monkeypatch):
+    ticks = iter([1.0, 1.25])
+    monkeypatch.setattr("app.main.perf_counter", lambda: next(ticks))
+    app = create_app(production_settings())
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get("/api/config")
+    assert response.status_code == 400
+    assert response.headers["Server-Timing"] == "app;dur=250.00"
+    assert "max-age=" in response.headers["Strict-Transport-Security"]
+
+
+@pytest.mark.asyncio
+async def test_server_timing_is_not_added_outside_api(monkeypatch):
+    ticks = iter([1.0])
+    monkeypatch.setattr("app.main.perf_counter", lambda: next(ticks))
+    app = create_app(Settings(environment="test", _env_file=None))
+    async with httpx.AsyncClient(
+        transport=httpx.ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        response = await client.get("/openapi.json")
+    assert response.status_code == 200
+    assert "Server-Timing" not in response.headers

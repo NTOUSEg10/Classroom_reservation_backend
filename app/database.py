@@ -1,6 +1,17 @@
 from contextlib import asynccontextmanager
 
 
+async def initialize_connection(connection):
+    await connection.execute("SET ROLE ntou_backend")
+
+
+async def reset_connection(connection):
+    # Keep asyncpg's complete session cleanup and restore the role in one trip.
+    await connection.execute(
+        connection.get_reset_query() + "\nSET ROLE ntou_backend;"
+    )
+
+
 @asynccontextmanager
 async def transaction(pool):
     async with pool.acquire() as conn:

@@ -1211,6 +1211,29 @@ async def test_application_role_cannot_change_role_or_write_audit_history(
     assert not columns
 
 
+async def test_pool_release_restores_role_and_cleans_session_state(pool, db):
+    async with pool.acquire() as connection:
+        backend_id = await connection.fetchval("SELECT pg_backend_pid()")
+        await connection.execute(
+            """SET ROLE NONE;
+            SET ntou.test_marker='private-fixture';
+            LISTEN ntou_test_cleanup;
+            SELECT pg_advisory_lock(1847332999);"""
+        )
+    async with pool.acquire() as connection:
+        state = await connection.fetchrow(
+            """SELECT pg_backend_pid() AS backend_id, current_user AS role,
+              current_setting('ntou.test_marker',true) AS marker,
+              (SELECT count(*) FROM pg_listening_channels()) AS listeners,
+              (SELECT count(*) FROM pg_locks
+                WHERE pid=pg_backend_pid() AND locktype='advisory') AS locks"""
+        )
+    assert state["backend_id"] == backend_id
+    assert state["role"] == "ntou_backend"
+    assert state["marker"] in {"", None}
+    assert state["listeners"] == state["locks"] == 0
+
+
 async def test_storage_upload_accepts_safe_image_and_rejects_active_or_oversized_content(
     api, db, auth, admin
 ):

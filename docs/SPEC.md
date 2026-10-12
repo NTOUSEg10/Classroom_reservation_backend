@@ -1,6 +1,6 @@
 # 海大教室借用平台 — 系統規格
 
-版本：1.3；初版規劃日期：2026-10-11；需求修訂日期：2026-10-13（Asia/Taipei）。初版先於應用程式實作建立；本次移除錄影用 Demo，進行真實服務串接與 Git 版本保存，正式部署依使用者決定暫緩。
+版本：1.4；初版規劃日期：2026-10-11；需求修訂日期：2026-10-13（Asia/Taipei）。初版先於應用程式實作建立；本次移除錄影用 Demo，完成真實 Google 本機登入與 Git 版本保存，正式部署依使用者決定暫緩；效能未達標項目保留待驗收。
 
 發展者團隊：**林品希、陳佳昀、林良承、李曜年、侯屏嘉、洪于宸**。
 
@@ -267,6 +267,14 @@ Reservation 回應至少包含 id,user_id,room_id,starts_at,ends_at,purpose,atte
 - Google callback 成功及取消／失效／缺 verifier，有正常落點與可重試錯誤；非 Google、錯網域、未確認、偽造 metadata 全拒絕；無 profile 可以安全完成／重試 onboarding；不能自訂 email、UUID、role、verified。
 - GSAP 正常模式有可觀察的頁面及元件進出效果；reduced-motion 模式立即呈現可操作內容。卸載後 context／matchMedia revert，快速切頁無殘留樣式或控制延遲；CSP 下正式 build 仍能啟動。
 - git rev-parse 分別得到兩個不同 repo 根目錄，git remote 指向上述 URLs；git check-ignore 確認私密與產物排除，乾淨 clone／stage 檔案不含另一個 repo 或本機 secrets。
+
+### 10.4 真實服務驗收與效能決策（2026-10-13）
+
+Google provider、Before User Created hook、精確本機 callback 已儲存並透過本人學校帳號完成 PKCE 與 onboarding；Email／其他 provider 停用。資料庫使用受限 application LOGIN 與完整 TLS 驗證。實際 borrower 的資料與歷史 API 為 200、管理員 API 為 403；原始報告只記狀態，不含個資或 token。
+
+資格查詢改為同一條 SQL 取得 profile 與有效違規點數，避免重複 acquire；角色於連線初始化設定，釋放保留 asyncpg 完整 reset 並還原角色，減少往返。每次請求仍即時向 Supabase 驗證及查詢帳號停權。增加 `Server-Timing: app;dur=<ms>` 區分後端處理與瀏覽器總時間，僅包含總耗時；以 mock timers 測試正常及錯誤路徑。
+
+218 項後端回歸測試與 100 筆並行申請／核准通過，SQL 競爭亦僅一筆成功。這些為隔離本機 PostgreSQL 測試；本人登入另使用真實 Supabase，兩者分開記錄。本機連 Sydney 的五筆後端資格查詢約 768–1105ms，**NFR-006 仍未達標**，不得調降 500ms 要求。正式環境需要服務區域與完整負載實測；目前正式部署由使用者暫緩。token refresh、實機推播、正式教室資料及正式 HTTPS 仍待驗收，詳見 CONNECT_REAL_SUPABASE.md 與 reports/real-google-acceptance.json。
 
 最新文件來源：[Prettier options](https://prettier.io/docs/options)、[Prettier installation](https://prettier.io/docs/install)、[Svelte Prettier plugin](https://github.com/sveltejs/prettier-plugin-svelte)、[GSAP matchMedia](<https://gsap.com/docs/v3/GSAP/gsap.matchMedia()/>)、[官方 GSAP skills](https://github.com/greensock/gsap-skills)、[Supabase Google OAuth](https://supabase.com/docs/guides/auth/social-login/auth-google)、[Supabase PKCE](https://supabase.com/docs/guides/auth/sessions/pkce-flow)、[Supabase JWT AMR](https://supabase.com/docs/guides/auth/jwt-fields)、[Supabase session AMR](https://github.com/supabase/auth/blob/master/internal/models/sessions.go)。已按使用者要求安裝官方 8 個 GSAP skills，動畫實作使用 core／frameworks／performance。
 

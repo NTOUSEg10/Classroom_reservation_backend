@@ -1,0 +1,51 @@
+{
+  "generated_at_utc": "2026-10-12T23:06:44.551Z",
+  "environment": {
+    "frontend": "local SvelteKit",
+    "backend": "local FastAPI",
+    "supabase_region": "ap-southeast-2",
+    "demo_data": false,
+    "production_deployment": "deferred_by_user"
+  },
+  "google_provider_enabled": true,
+  "email_and_other_providers_disabled": true,
+  "school_google_login_verified": true,
+  "pkce_callback_completed": true,
+  "onboarding_complete": true,
+  "profile_role": "borrower",
+  "profile_verified": true,
+  "session_persistence_after_navigation": true,
+  "identity_http_status": 200,
+  "own_profile_http_status": 200,
+  "borrower_admin_users_http_status": 403,
+  "own_history_http_status": 200,
+  "token_refresh_verified": false,
+  "eligibility": {
+    "eligible": true,
+    "requirement_ms": 500,
+    "baseline_browser_headers_ms": 1917,
+    "after_browser_elapsed_ms": [
+      1129,
+      799,
+      792,
+      1068,
+      774
+    ],
+    "after_backend_handling_ms": [
+      1104.85,
+      790.05,
+      782.26,
+      1060.92,
+      768.1
+    ],
+    "nfr006_met": false,
+    "sample_count": 5
+  },
+  "backend_regression": {
+    "tests": 218,
+    "failures": 0,
+    "report": "real-google-pytest.xml"
+  },
+  "live_rooms": 0,
+  "real_device_push_verified": false
+}

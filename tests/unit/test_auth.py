@@ -461,3 +461,96 @@ async def test_legacy_password_login_is_disabled_without_calling_auth(payload):
     assert response.status_code == 403
     assert response.json() == {"detail": "請使用學校 Google 帳號登入"}
     assert "must-not-echo" not in response.text
+
+
+@pytest.mark.asyncio
+async def test_eligibility_uses_one_profile_snapshot_and_revalidates_each_request():
+    class EligibilityPool(ProfilePool):
+        def __init__(self):
+            super().__init__(
+                {
+                    "id": USER_ID,
+                    "email": EMAIL,
+                    "role": "borrower",
+                    "verified": True,
+                    "suspended": False,
+                    "violation_points": 0,
+                }
+            )
+            self.acquires = 0
+            self.queries = 0
+
+        def acquire(self):
+            self.acquires += 1
+            return self
+
+        async def fetchrow(self, query, user_id):
+            assert user_id == UUID(USER_ID)
+            assert "FROM profiles p WHERE p.id=$1" in query
+            assert "v.user_id=p.id AND NOT v.resolved" in query
+            self.queries += 1
+            return dict(self.profile)
+
+    pool = EligibilityPool()
+    verified = []
+    token = oauth_token()
+
+    def handle(request):
+        verified.append(request.headers["authorization"])
+        return httpx.Response(200, json=google_user())
+
+    app = create_app(
+        Settings(
+            environment="test",
+            supabase_url="https://fixture.supabase.co",
+            supabase_publishable_key="test-public",
+            _env_file=None,
+        ),
+        pool=pool,
+        auth_transport=httpx.MockTransport(handle),
+    )
+    async with app.router.lifespan_context(app):
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            headers = {"Authorization": "Bearer " + token}
+            first = await client.get("/api/me/eligibility", headers=headers)
+            assert first.status_code == 200
+            assert first.json()["eligible"] is True
+            pool.profile.update(suspended=True, violation_points=3)
+            second = await client.get("/api/me/eligibility", headers=headers)
+            assert second.status_code == 200
+            assert second.json()["eligible"] is False
+            assert second.json()["suspended"] is True
+            assert second.json()["violation_points"] == 3
+    assert pool.acquires == pool.queries == 2
+    assert verified == ["Bearer " + token] * 2
+
+
+@pytest.mark.asyncio
+async def test_eligibility_does_not_query_database_when_live_auth_is_revoked():
+    class NoAccessPool:
+        def acquire(self):
+            raise AssertionError("Revoked authentication cannot reach profiles")
+
+    app = create_app(
+        Settings(
+            environment="test",
+            supabase_url="https://fixture.supabase.co",
+            supabase_publishable_key="test-public",
+            _env_file=None,
+        ),
+        pool=NoAccessPool(),
+        auth_transport=httpx.MockTransport(
+            lambda _: httpx.Response(401, json={"msg": "revoked"})
+        ),
+    )
+    async with app.router.lifespan_context(app):
+        async with httpx.AsyncClient(
+            transport=httpx.ASGITransport(app=app), base_url="http://test"
+        ) as client:
+            response = await client.get(
+                "/api/me/eligibility",
+                headers={"Authorization": "Bearer " + oauth_token()},
+            )
+    assert response.status_code == 401
