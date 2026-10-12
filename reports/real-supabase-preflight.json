@@ -8,6 +8,10 @@
   "app_tables_with_rls": 9,
   "rooms": 0,
   "demo_seed_imported": false,
+  "auth_dashboard_checked_at_utc": "2026-10-12T22:14:49+00:00",
+  "before_user_created_hook_enabled": true,
+  "before_user_created_hook_function": "public.ntou_google_signup_gate",
+  "local_redirect_urls_verified": true,
   "google_provider_verified": false,
   "local_google_flow_verified": false,
   "production_deployment": "deferred_by_user"

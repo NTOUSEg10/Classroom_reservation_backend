@@ -12,6 +12,9 @@
 ## Google provider
 
 - Google Cloud 建立／使用 Web OAuth client；Google 授權 redirect URI 取 Supabase provider 頁顯示的完整 callback。Google client ID／secret 只保存在 Supabase provider 設定，不進前端、Git 或報告。
+- 目前專案的 Google redirect URI 為 `https://akubvdmdincihwqgqqpb.supabase.co/auth/v1/callback`；JavaScript origins 為 `http://127.0.0.1:5173` 與 `http://localhost:5173`，origins 不含 `/auth/callback` 路徑。
+- 個人 Google Cloud 專案使用 External audience，維持 Testing；僅要求 `openid`、`userinfo.email`、`userinfo.profile`。依 [Google 官方說明](https://developers.google.com/identity/protocols/oauth2/production-readiness/overview)，僅基本身分 scopes 有 Testing allowlist 例外；校方 Workspace 管理員仍可阻擋外部應用。`Internal` 只適用於同一 Workspace 組織，不能以此替代應用程式的學校信箱限制。
+- Client ID 是 Google 產生的 `.apps.googleusercontent.com` 識別碼，Client Secret 是 OAuth 密鑰，兩者都不是 Google 帳號／密碼。不要啟用付費試用、不要加入 Gmail／Drive scopes；不需要先部署網站即可測試本機 OAuth。
 - Supabase 啟用 Google，停用 email/password、phone、anonymous 及其他登入 provider；啟用 public.ntou_google_signup_gate 的 Before User Created hook。
 - Site URL 使用 http://127.0.0.1:5173；Redirect URLs 明列 http://127.0.0.1:5173/auth/callback，以及需要時的 localhost callback。日後正式部署改為核准 HTTPS URL。
 - 用真實 @email.ntou.edu.tw 帳號驗證 Google 授權、PKCE、首次基本資料、session refresh、停權與 borrower/admin 邊界。帳號名稱、密碼、token 不記錄在公開測試報告。
@@ -37,3 +40,12 @@ Edge Function 的 DISPATCH_API_KEY 必須等於後端 worker 使用的 server ke
 - 本機到 Session pooler 為 TLS 1.3，憑證及 hostname 驗證通過；FastAPI health、教室查詢與公開設定皆回 200，DEMO_DATA=false。
 - 未匯入 Demo seed；目前正式教室清單為空，須提供校方確認資料。
 - 清理後後端 210 項 pytest、前端 45 項測試通過。Google provider／完整校園登入需後續 OAuth client 設定與實際帳號驗證，不能用 fixture 結果替代。
+- Dashboard 已確認 Before User Created hook 為 ENABLED，函式 `public.ntou_google_signup_gate`；Site URL 與兩個精確本機 callback 已儲存。
+
+## 真實本機登入驗收
+
+1. Google provider 啟用且 Email／其他 provider 關閉後，在 `http://127.0.0.1:5173/login` 用本人學校 Google 帳號登入；Google 授權與 callback 必須在同一瀏覽器、同一 origin 完成，才保留 PKCE verifier。
+2. 新使用者應進入 `/account` 完成姓名、證號、聯絡電話與系所；註冊前 identity 為 `onboarding_required:true`，`/api/me` 拒絕未完成資料的帳號。
+3. 註冊成功應為 borrower、`verified:true`；重新載入、登出後再登入，個人資料仍存在；borrower 呼叫管理員 API 應回 403。
+4. session persistence 與 token refresh 分開驗收。重新載入僅驗證 persistence，須觀察真實 refresh grant 與後續成功的 identity 請求，才能記錄 refresh 通過。公開報告不得包含帳號個資或 token。
+5. 取消 Google 授權應能重試，callback code／錯誤參數不留在網址。正式教室資料仍為空，因此此階段不宣稱正式預約生命週期或 HTTPS 部署驗收通過。
