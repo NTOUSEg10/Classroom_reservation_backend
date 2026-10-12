@@ -1,0 +1,14 @@
+{
+  "checked_at_utc": "2026-10-12T21:55:16.605572+00:00",
+  "real_supabase": true,
+  "tls_client_to_pooler": "TLSv1.3",
+  "hostname_validation": true,
+  "certificate_validation_required": true,
+  "application_login_restricted": true,
+  "app_tables_with_rls": 9,
+  "rooms": 0,
+  "demo_seed_imported": false,
+  "google_provider_verified": false,
+  "local_google_flow_verified": false,
+  "production_deployment": "deferred_by_user"
+}

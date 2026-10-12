@@ -1,3 +1,4 @@
+import ssl
 from urllib.parse import parse_qs, urlparse
 
 from pydantic import AliasChoices, Field, model_validator
@@ -14,6 +15,7 @@ class Settings(BaseSettings):
 
     environment: str = "development"
     database_url: str = Field(default="", repr=False)
+    database_ssl_ca_file: str = Field(default="", repr=False)
     supabase_url: str = ""
     supabase_publishable_key: str = ""
     supabase_service_key: str = Field(
@@ -100,3 +102,25 @@ class Settings(BaseSettings):
                     "Production DB TLS must verify the certificate"
                 )
         return self
+
+
+def database_ssl_context(settings: Settings) -> ssl.SSLContext | None:
+    try:
+        host = urlparse(settings.database_url).hostname
+    except ValueError:
+        raise ValueError("Invalid DATABASE_URL") from None
+    if settings.environment != "production" and host in {
+        "localhost",
+        "127.0.0.1",
+        "::1",
+    }:
+        return None
+    try:
+        # An explicit context overrides weaker sslmode options in the DSN.
+        return ssl.create_default_context(
+            cafile=settings.database_ssl_ca_file or None
+        )
+    except (OSError, ValueError):
+        raise RuntimeError(
+            "Database CA certificate could not be loaded; check DATABASE_SSL_CA_FILE"
+        ) from None

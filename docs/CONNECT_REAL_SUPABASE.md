@@ -16,6 +16,8 @@
 - Site URL 使用 http://127.0.0.1:5173；Redirect URLs 明列 http://127.0.0.1:5173/auth/callback，以及需要時的 localhost callback。日後正式部署改為核准 HTTPS URL。
 - 用真實 @email.ntou.edu.tw 帳號驗證 Google 授權、PKCE、首次基本資料、session refresh、停權與 borrower/admin 邊界。帳號名稱、密碼、token 不記錄在公開測試報告。
 
+資料庫憑證可由 Dashboard → Database → Settings → Download certificate 取得，存入私有檔案，並設定 DATABASE_SSL_CA_FILE。遠端資料庫在開發模式也驗證 TLS 與 hostname，不透過停用 SSL 驗證解決憑證錯誤。連接 pooler 時 pg_stat_ssl 描述的是 pooler 到內部 PostgreSQL 的連線；本機到 pooler 的 TLS 需檢查 client transport。
+
 ## 金鑰相容性與推播
 
 SUPABASE_SECRET_KEY 優先於 legacy SUPABASE_SERVICE_ROLE_KEY；公開 key 不能填 sb_secret_ 或 service_role JWT。新版 opaque API keys 放 apikey，只有使用者 JWT／legacy JWT key 作 Bearer。
@@ -27,3 +29,11 @@ Edge Function 的 DISPATCH_API_KEY 必須等於後端 worker 使用的 server ke
 ## 驗證範圍
 
 本機透過真實上游的連線與 Google 登入驗證，必須與 tests-only fixture 分開記錄。正式 scripts/verify_supabase.py 要求 HTTPS，不能以 localhost HTTP 結果假冒正式驗收。尚未完成的外部步驟保留為待驗，不改寫為已成功。
+
+## 2026-10-13 已確認狀態
+
+- 真實 Supabase 已建立 9 張應用資料表、RLS、註冊限制函式、private room-maps bucket 與 notifications publication。
+- 應用使用獨立 ntou_api LOGIN／ntou_backend membership；沒有 superuser、bypass RLS、建立 DB 或角色的權限。owner 連線另存私有 migration 設定。
+- 本機到 Session pooler 為 TLS 1.3，憑證及 hostname 驗證通過；FastAPI health、教室查詢與公開設定皆回 200，DEMO_DATA=false。
+- 未匯入 Demo seed；目前正式教室清單為空，須提供校方確認資料。
+- 清理後後端 210 項 pytest、前端 45 項測試通過。Google provider／完整校園登入需後續 OAuth client 設定與實際帳號驗證，不能用 fixture 結果替代。

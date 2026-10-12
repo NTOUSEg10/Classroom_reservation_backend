@@ -1,5 +1,4 @@
 import asyncio
-import ssl
 from contextlib import asynccontextmanager, suppress
 from datetime import datetime, timedelta, timezone
 from typing import Callable
@@ -28,7 +27,7 @@ from .auth import (
     response_json,
     supabase_request,
 )
-from .config import Settings
+from .config import Settings, database_ssl_context
 from .database import (
     RESERVATION_SELECT,
     audit,
@@ -83,9 +82,7 @@ def create_app(
                 dsn=settings.database_url,
                 min_size=settings.pool_min_size,
                 max_size=settings.pool_max_size,
-                ssl=ssl.create_default_context()
-                if settings.environment == "production"
-                else None,
+                ssl=database_ssl_context(settings),
                 command_timeout=2,
                 server_settings={
                     "search_path": "public",
