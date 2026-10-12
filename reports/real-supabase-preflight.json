@@ -12,6 +12,11 @@
   "before_user_created_hook_enabled": true,
   "before_user_created_hook_function": "public.ntou_google_signup_gate",
   "local_redirect_urls_verified": true,
+  "google_cloud_checked_at_utc": "2026-10-12T22:26:50+00:00",
+  "google_cloud_project_id": "ntou-classroom-reservation",
+  "google_brand_configured": true,
+  "google_basic_scopes_configured": ["openid", "userinfo.email", "userinfo.profile"],
+  "google_oauth_client_creation": "prepared_awaiting_user",
   "google_provider_verified": false,
   "local_google_flow_verified": false,
   "production_deployment": "deferred_by_user"

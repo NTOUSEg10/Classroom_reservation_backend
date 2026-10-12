@@ -41,6 +41,7 @@ Edge Function 的 DISPATCH_API_KEY 必須等於後端 worker 使用的 server ke
 - 未匯入 Demo seed；目前正式教室清單為空，須提供校方確認資料。
 - 清理後後端 210 項 pytest、前端 45 項測試通過。Google provider／完整校園登入需後續 OAuth client 設定與實際帳號驗證，不能用 fixture 結果替代。
 - Dashboard 已確認 Before User Created hook 為 ENABLED，函式 `public.ntou_google_signup_gate`；Site URL 與兩個精確本機 callback 已儲存。
+- Google Cloud 專案 `ntou-classroom-reservation` 已建立品牌「海大教室借用平台」與三個基本身分 scopes；Web client 的網址表單已準備，尚待使用者建立 client、將產生的憑證填入 Supabase 並儲存。這個中間狀態不代表 Google 登入已通過驗收。
 
 ## 真實本機登入驗收
 
