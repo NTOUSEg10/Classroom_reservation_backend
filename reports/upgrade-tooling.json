@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Asia/Taipei",
+  "scope": "Local split-repository configuration and tooling checks",
+  "backend_prettier": {
+    "version": "3.9.10",
+    "passed": true,
+    "command": "npm run format:check"
+  },
+  "python_ruff": {
+    "version": "0.17.0",
+    "formatted_files": 25,
+    "format_check_passed": true,
+    "lint_passed": true,
+    "lint_select": ["E4", "E7", "E9", "F"]
+  },
+  "deno": {
+    "version": "2.9.6",
+    "typecheck_passed": true,
+    "security_tests_passed": 2,
+    "node_modules_mode": "none",
+    "fixed_split_regression": "The backend's new Prettier package.json implied manual npm resolution; explicit Deno cache mode removes dependence on frontend node_modules."
+  },
+  "dependencies": {
+    "backend_npm_vulnerabilities": 0,
+    "pinned_python_packages_checked": 36,
+    "python_advisory_findings": 0
+  },
+  "caddy": {
+    "version": "2.10.2",
+    "config_valid": true,
+    "config": "deploy/Caddyfile",
+    "test_app_domain": "rooms.example.test",
+    "scope": "Configuration validation only; no certificate issuance or TLS connection tested."
+  },
+  "git": {
+    "repositories": ["backend", "frontend"],
+    "branch": "main",
+    "parent_is_repository": false,
+    "environment_files_ignored": true,
+    "dependency_and_build_directories_ignored": true,
+    "committed": false,
+    "pushed": false
+  },
+  "not_executed": [
+    "Remote GitHub Actions",
+    "Docker build and compose deployment",
+    "Real Google and production Supabase OAuth",
+    "Real TLS certificate and device push acceptance"
+  ]
+}

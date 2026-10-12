@@ -1,0 +1,31 @@
+{
+  "generated_at": "2026-10-11T15:33:18.409Z",
+  "browser": "154.0.8037.98",
+  "checks": [
+    {
+      "route": "/",
+      "hydrated": true
+    },
+    {
+      "route": "/login",
+      "hydrated": true
+    },
+    {
+      "route": "/account",
+      "hydrated": true
+    },
+    {
+      "route": "/admin",
+      "hydrated": true
+    },
+    {
+      "route": "/rooms/11111111-1111-4111-8111-111111111111",
+      "hydrated": true
+    }
+  ],
+  "bootstrap_hash_allowed": true,
+  "untrusted_inline_blocked": true,
+  "page_errors": [],
+  "passed": true,
+  "scope": "Built SPA + native Caddy CSP over loopback HTTP; no TLS certificate or remote Supabase acceptance"
+}

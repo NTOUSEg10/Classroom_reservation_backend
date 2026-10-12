@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-12",
+  "timezone": "Asia/Taipei",
+  "scope": "Local frontend checks after Google-only PKCE, onboarding, GSAP and Prettier changes",
+  "format": { "tool": "prettier@3.9.10", "plugin": "prettier-plugin-svelte@4.1.1", "passed": true, "print_width": 80, "single_quote": false, "tab_width": 2, "end_of_line": "lf" },
+  "svelte_check": { "errors": 0, "warnings": 0 },
+  "vitest": { "files": 5, "passed": 34, "failed": 0 },
+  "build": { "passed": true, "fallback": "build/200.html", "csp_hashes_verified": true, "injected_inline_allowed": false },
+  "npm_audit": { "vulnerabilities": 0 },
+  "motion": { "dependency": "gsap@3.15.0", "max_transition_ms": 280, "reduced_motion": "No tweens; content remains directly visible", "cleanup": "Svelte action updates and destroy revert matchMedia, queued work uses generation guards" },
+  "auth_tests": ["Manual PKCE configuration", "Google picker school-domain hint", "Single-use code deduplication", "Cancelled and incomplete callbacks", "Expired verifier cleanup with redacted errors", "Missing profile is valid onboarding", "In-flight identity does not restore state after logout", "Server rejects non-school identities", "Existing offline logout regressions retained", "Pending PKCE response vs logout including SDK storage and SIGNED_IN event", "Older vs newer callback SDK session writes", "Older identity failure vs newer successful callback", "Pending callback vs new Google redirect"],
+  "callback_browser": { "report": "callback-browser-validation.json", "passed": true, "checks": 5, "scope": "Real Chrome, actual Supabase browser SDK, mocked upstream and business API contracts; real FastAPI E2E pending" },
+  "private_route_boundary": "Owner UUID or admin-role change remounts page-local data and forms; callback stays mounted across its own session exchange. Reservations/admin loads guard lifetime, owner and latest request; detached results cannot render in a newer identity.",
+  "cancellation_race": "Cancel/no-code cleanup waits in the existing SDK Auth mutation queue; abandoned session writes are removed only for the current generation. Stable sessions with no pending callback and newer logins are preserved.",
+  "not_verified": ["Real Google or production Supabase OAuth", "Latest cancellation change targeted browser regression", "Native Caddy browser validation for the latest build", "End-device push"]
+}

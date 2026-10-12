@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-10-12T03:03:54.175634+00:00",
+  "version": "2.10.2",
+  "production_config": "deploy/Caddyfile",
+  "config_validate": "passed",
+  "preview_validate": "passed",
+  "preview_changes": [
+    "loopback HTTP origin + explicit bind",
+    "frontend sibling build root",
+    "loopback API address",
+    "administrative endpoint disabled"
+  ],
+  "preview_listener": "127.0.0.1:8081",
+  "production_browser_report": "reports/upgrade-caddy-browser.json",
+  "browser_hydrated_routes": 7,
+  "guest_private_routes_login_prompt": true,
+  "untrusted_inline_blocked": true,
+  "scope": "Production header/fallback logic and latest built SPA over loopback HTTP; actual TLS/Docker/Google OAuth not exercised",
+  "production_browser_validated_at": "2026-10-12T03:02:37.760Z",
+  "latest_auth_flow_build": true
+}

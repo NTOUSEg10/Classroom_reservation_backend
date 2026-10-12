@@ -1,0 +1,10 @@
+{
+  "name": "ntou-browser-verification",
+  "private": true,
+  "scripts": {
+    "test:e2e": "node e2e.cjs"
+  },
+  "devDependencies": {
+    "playwright": "1.64.0"
+  }
+}

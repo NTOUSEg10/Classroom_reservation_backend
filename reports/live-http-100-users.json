@@ -1,0 +1,102 @@
+{
+  "generated_at": "2026-10-11T15:22:10.170520+00:00",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "transport": "localhost PostgreSQL; mock upstream Auth"
+  },
+  "users": 100,
+  "transport": "real localhost TCP HTTP + PostgreSQL",
+  "auth": "test-only MockTransport; Supabase network SLA remains deployment gate",
+  "seed_scale": {
+    "profiles": 101,
+    "rooms": 4,
+    "pending_reservations": 100
+  },
+  "measurements": {
+    "availability": {
+      "count": 100,
+      "p50_ms": 392.587,
+      "p95_ms": 415.843,
+      "max_ms": 418.887,
+      "statuses": {
+        "200": 100
+      },
+      "sla_ms": 2000,
+      "passed": true,
+      "dispatch_spread_ms": 34.076
+    },
+    "weekly_schedule": {
+      "count": 100,
+      "p50_ms": 112.826,
+      "p95_ms": 128.82,
+      "max_ms": 129.942,
+      "statuses": {
+        "200": 100
+      },
+      "sla_ms": 2000,
+      "passed": true,
+      "dispatch_spread_ms": 28.59
+    },
+    "applications": {
+      "count": 100,
+      "p50_ms": 354.579,
+      "p95_ms": 427.719,
+      "max_ms": 440.607,
+      "statuses": {
+        "201": 100
+      },
+      "sla_ms": 2000,
+      "passed": true,
+      "dispatch_spread_ms": 25.062
+    },
+    "eligibility": {
+      "count": 100,
+      "p50_ms": 149.045,
+      "p95_ms": 179.679,
+      "max_ms": 186.209,
+      "statuses": {
+        "200": 100
+      },
+      "sla_ms": 500.0,
+      "passed": true,
+      "dispatch_spread_ms": 28.213
+    },
+    "page_history": {
+      "count": 100,
+      "p50_ms": 188.716,
+      "p95_ms": 232.764,
+      "max_ms": 242.695,
+      "statuses": {
+        "200": 100
+      },
+      "sla_ms": 5000,
+      "passed": true,
+      "dispatch_spread_ms": 20.321
+    },
+    "permission_refresh": {
+      "count": 100,
+      "p50_ms": 123.021,
+      "p95_ms": 139.585,
+      "max_ms": 140.059,
+      "statuses": {
+        "200": 100
+      },
+      "sla_ms": 5000,
+      "passed": true,
+      "dispatch_spread_ms": 18.907
+    },
+    "admin_navigation_under_load": {
+      "count": 100,
+      "p50_ms": 153.737,
+      "p95_ms": 172.37,
+      "max_ms": 173.001,
+      "statuses": {
+        "200": 100
+      },
+      "sla_ms": 5000,
+      "passed": true,
+      "dispatch_spread_ms": 18.77
+    }
+  }
+}

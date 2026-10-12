@@ -1,0 +1,38 @@
+{
+  "generated_at": "2026-10-12T02:48:03.053Z",
+  "browser": "154.0.8037.98",
+  "captures": [
+    {
+      "file": "upgrade-auth-login-desktop.png",
+      "route": "/login",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "file": "upgrade-auth-callback-cancel-desktop.png",
+      "route": "/auth/callback",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "file": "upgrade-auth-callback-invalid-code-desktop.png",
+      "route": "/auth/callback",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "file": "upgrade-auth-onboarding-desktop.png",
+      "route": "/account",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "file": "upgrade-auth-onboarding-mobile.png",
+      "route": "/account",
+      "width": 375,
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "scope": "Actual app-rendered Google/callback/onboarding UI + genuine FastAPI TCP/PostgreSQL; upstream Google/Supabase is test-only fixture. Separate visual capture run; full 31-check E2E report retained."
+}

@@ -1,0 +1,15 @@
+{
+  "pytest_passed": 89,
+  "live_http_passed": 700,
+  "e2e_checks_passed": 20,
+  "e2e_api_url": "http://127.0.0.1:8004",
+  "e2e_db_reset_required": false,
+  "production_caddy_browser_probe": "passed; root verified caddy-browser.json",
+  "e2e_profiles": 102,
+  "e2e_borrowers": 101,
+  "e2e_violations": 101,
+  "owned_api_server_stopped": true,
+  "owned_vite_server_stopped": true,
+  "owned_test_postgres_stopped": true,
+  "owned_caddy_stopped": true
+}

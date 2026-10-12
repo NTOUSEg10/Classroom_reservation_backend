@@ -1,0 +1,34 @@
+{
+  "generated_at": "2026-10-11T15:19:59.866921+00:00",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "transport": "localhost PostgreSQL; mock upstream Auth"
+  },
+  "database_version": "17.11",
+  "users": 100,
+  "simultaneity": "100 tasks released by one asyncio Event; scheduler dispatch spread measured",
+  "applications": {
+    "count": 100,
+    "p50_ms": 594.112,
+    "p95_ms": 695.766,
+    "max_ms": 705.244,
+    "statuses": {
+      "201": 100
+    },
+    "dispatch_spread_ms": 56.227,
+    "sla_ms": 2000
+  },
+  "approvals": {
+    "count": 100,
+    "p50_ms": 323.513,
+    "p95_ms": 374.79,
+    "max_ms": 390.115,
+    "statuses": {
+      "409": 99,
+      "200": 1
+    },
+    "dispatch_spread_ms": 26.949,
+    "approved_rows": 1
+  }
+}

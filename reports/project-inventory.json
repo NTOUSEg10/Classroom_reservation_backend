@@ -1,0 +1,181 @@
+{
+  "root": "C:\\Project\\ntouse-g10",
+  "files_scanned": 500,
+  "scan_limit_reached": true,
+  "languages": [
+    {
+      "name": "Markdown",
+      "files": 2,
+      "examples": [
+        "PRODUCT.md",
+        "README.md"
+      ]
+    },
+    {
+      "name": "YAML",
+      "files": 2,
+      "examples": [
+        "compose.yaml",
+        ".github/workflows/ci.yml"
+      ]
+    },
+    {
+      "name": "Python",
+      "files": 1,
+      "examples": [
+        "pyproject.toml"
+      ]
+    },
+    {
+      "name": "JSON",
+      "files": 1,
+      "examples": [
+        ".impeccable/questions/roll.json"
+      ]
+    }
+  ],
+  "manifests": [
+    "pyproject.toml"
+  ],
+  "surfaces": [
+    {
+      "id": "ci",
+      "labels": {
+        "zh": "CI/CD",
+        "en": "CI/CD"
+      },
+      "evidence": [
+        "CI workflow files"
+      ]
+    },
+    {
+      "id": "deployment",
+      "labels": {
+        "zh": "部署 / 容器 / 基础设施",
+        "en": "Deployment / containers / infrastructure"
+      },
+      "evidence": [
+        "runtime dependency manifests"
+      ]
+    },
+    {
+      "id": "docs",
+      "labels": {
+        "zh": "文档",
+        "en": "Documentation"
+      },
+      "evidence": [
+        "README/docs markdown files"
+      ]
+    }
+  ],
+  "recommendations": [
+    {
+      "id": "full",
+      "modes": [
+        "full"
+      ],
+      "labels": {
+        "zh": "全量审计",
+        "en": "Full audit"
+      },
+      "when": {
+        "zh": "第一次体检、准备发布、接手陌生项目，或你不确定该从哪里看起。",
+        "en": "Use this for a first health check, release readiness review, unfamiliar project handoff, or when you are not sure where to start."
+      },
+      "reasons": {
+        "zh": "已识别到 Markdown、YAML、Python、JSON 项目；全量审计会覆盖架构、安全、稳定性、测试、发布、文档等全部维度。",
+        "en": "Detected a Markdown, YAML, Python, JSON project. A full audit covers architecture, security, stability, testing, release, documentation, and the other dimensions."
+      },
+      "priority": 100
+    },
+    {
+      "id": "security_privacy",
+      "modes": [
+        "security",
+        "privacy",
+        "supply-chain",
+        "configuration"
+      ],
+      "labels": {
+        "zh": "偏安全与隐私",
+        "en": "Security and privacy focused"
+      },
+      "when": {
+        "zh": "你最关心认证、权限、输入边界、密钥、依赖供应链或用户数据风险。",
+        "en": "Use this when authentication, authorization, input boundaries, secrets, dependency supply chain, or user-data risk matter most."
+      },
+      "reasons": {
+        "zh": "项目存在安全、隐私、服务端、部署、数据或 CI 线索，适合优先检查攻击面和数据边界。",
+        "en": "The project has security, privacy, backend, deployment, data, or CI signals, so attack surface and data boundaries deserve early attention."
+      },
+      "priority": 90
+    },
+    {
+      "id": "release_operability",
+      "modes": [
+        "release",
+        "configuration",
+        "observability",
+        "supply-chain"
+      ],
+      "labels": {
+        "zh": "偏发布与运维",
+        "en": "Release and operability focused"
+      },
+      "when": {
+        "zh": "你准备上线、交付、迁移环境，或担心 CI/CD、配置、回滚、健康检查和告警。",
+        "en": "Use this before shipping, handoff, environment migration, or when CI/CD, config, rollback, health checks, and alerts are the concern."
+      },
+      "reasons": {
+        "zh": "项目包含 CI、容器、基础设施或部署清单，适合检查发布可靠性和运行期可控性。",
+        "en": "The project has CI, container, infrastructure, or deployment evidence, so release reliability and runtime control are relevant."
+      },
+      "priority": 74
+    },
+    {
+      "id": "testing_confidence",
+      "modes": [
+        "testing",
+        "testing-authenticity",
+        "stability"
+      ],
+      "labels": {
+        "zh": "偏测试补强",
+        "en": "Testing confidence focused"
+      },
+      "when": {
+        "zh": "你想先知道测试是否真的能兜住关键行为，尤其是仓库里测试线索较弱时。",
+        "en": "Use this when you first want to know whether the tests protect critical behavior, especially when test signals look weak."
+      },
+      "reasons": {
+        "zh": "未识别到明显测试目录或测试文件，适合先评估风险最高的测试缺口。",
+        "en": "No obvious test directories or test files were detected, so the highest-risk confidence gaps should be checked early."
+      },
+      "priority": 68
+    },
+    {
+      "id": "maintainability_docs",
+      "modes": [
+        "architecture",
+        "maintainability",
+        "documentation",
+        "comment-coverage",
+        "code-consistency"
+      ],
+      "labels": {
+        "zh": "偏可维护性与文档",
+        "en": "Maintainability and documentation focused"
+      },
+      "when": {
+        "zh": "你准备重构、交接、扩展功能，或想知道代码是否容易继续维护。",
+        "en": "Use this before refactoring, handoff, feature expansion, or when you want to know whether the code is easy to keep changing."
+      },
+      "reasons": {
+        "zh": "该组合关注边界、复杂度、一致性、文档和注释有效性，适合作为工程健康度专项检查。",
+        "en": "This combination checks boundaries, complexity, consistency, documentation, and comment usefulness as an engineering-health review."
+      },
+      "priority": 60
+    }
+  ]
+}

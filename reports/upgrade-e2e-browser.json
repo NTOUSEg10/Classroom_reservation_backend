@@ -1,0 +1,177 @@
+{
+  "generated_at": "2026-10-12T03:01:20.626Z",
+  "browser": {
+    "version": "154.0.8037.98",
+    "timezone": "Asia/Taipei",
+    "auth": "test-only upstream fixture",
+    "backend": "real TCP FastAPI + PostgreSQL"
+  },
+  "checks": [
+    {
+      "name": "Guest private route resolves to a login prompt without private rows or actions",
+      "route": "/reservations",
+      "passed": true
+    },
+    {
+      "name": "Guest private route resolves to a login prompt without private rows or actions",
+      "route": "/admin",
+      "passed": true
+    },
+    {
+      "name": "Google callback cancel is safe and clears credentials and URL",
+      "passed": true
+    },
+    {
+      "name": "Google callback invalid-code is safe and clears credentials and URL",
+      "passed": true
+    },
+    {
+      "name": "Google callback missing-verifier is safe and clears credentials and URL",
+      "passed": true
+    },
+    {
+      "name": "Callback without a code does not attempt a token exchange",
+      "passed": true
+    },
+    {
+      "name": "GSAP reduce respects preference and quick navigation cleans styles",
+      "passed": true,
+      "observed_style_changes": 0,
+      "navigation_round_trips": 3
+    },
+    {
+      "name": "GSAP no-preference respects preference and quick navigation cleans styles",
+      "passed": true,
+      "observed_style_changes": 148,
+      "navigation_round_trips": 3
+    },
+    {
+      "name": "Delayed availability preserves submitted time and room-link snapshot until the next query",
+      "passed": true
+    },
+    {
+      "name": "Cross-tab Google account change reloads borrower history and rejects the previous owner's late response",
+      "passed": true
+    },
+    {
+      "name": "RWD no document overflow",
+      "route": "/",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "name": "Weekly schedule keyboard toggle and mobile day selection",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "name": "RWD no document overflow",
+      "route": "/",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "name": "Weekly schedule keyboard toggle and mobile day selection",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "name": "RWD no document overflow",
+      "route": "/",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "Weekly schedule keyboard toggle and mobile day selection",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "RWD no document overflow",
+      "route": "/",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "Borrower admin navigation hidden and direct admin page denied",
+      "passed": true
+    },
+    {
+      "name": "Local map resource and marker loaded",
+      "passed": true,
+      "duration_ms": 3.986,
+      "source": "Playwright browser protocol request timing",
+      "marker_duration_ms": 850.203,
+      "marker_source": "Node performance monotonic clock from navigation start to visible marker",
+      "sla_ms": 2000
+    },
+    {
+      "name": "Google PKCE keyboard login, immediate application, and own history",
+      "passed": true
+    },
+    {
+      "name": "Admin approval, key handover, key return, and borrower notifications",
+      "passed": true
+    },
+    {
+      "name": "102 admin users including a borrower beyond the original 100 row limit are reachable",
+      "passed": true,
+      "users": 102
+    },
+    {
+      "name": "Suspension blocks the already authenticated borrower",
+      "passed": true
+    },
+    {
+      "name": "RWD no document overflow",
+      "route": "/admin",
+      "width": 375,
+      "passed": true
+    },
+    {
+      "name": "RWD no document overflow",
+      "route": "/admin",
+      "width": 768,
+      "passed": true
+    },
+    {
+      "name": "RWD no document overflow",
+      "route": "/admin",
+      "width": 1440,
+      "passed": true
+    },
+    {
+      "name": "Violation borrower selection survives next/back pages and includes borrower beyond 100 rows",
+      "passed": true,
+      "borrowers": 101
+    },
+    {
+      "name": "101 violation records page stably and retain the oldest unresolved record and borrower name",
+      "passed": true,
+      "violations": 101
+    },
+    {
+      "name": "Oldest unresolved violation beyond 100 rows resolves from the mobile paginated view",
+      "passed": true
+    },
+    {
+      "name": "Map server failure retains location text",
+      "passed": true
+    },
+    {
+      "name": "Google auth-only identity completes onboarding through real API and survives reload",
+      "passed": true
+    }
+  ],
+  "screenshots": [
+    "upgrade-e2e-home-desktop.png",
+    "upgrade-e2e-home-mobile.png",
+    "upgrade-e2e-room-mobile.png",
+    "upgrade-e2e-admin-desktop.png",
+    "upgrade-e2e-violations-desktop.png",
+    "upgrade-e2e-violations-mobile.png",
+    "upgrade-e2e-map-fallback-mobile.png",
+    "upgrade-e2e-onboarding-completed.png"
+  ],
+  "passed": true
+}

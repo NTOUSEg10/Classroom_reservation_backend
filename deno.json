@@ -1,0 +1,9 @@
+{
+  "lock": "deno.lock",
+  "nodeModulesDir": "none",
+  "compilerOptions": { "strict": true },
+  "tasks": {
+    "check": "deno check supabase/functions/dispatch-push/index.ts scripts/generate-vapid.ts",
+    "test": "deno test supabase/functions/dispatch-push/security_test.ts"
+  }
+}

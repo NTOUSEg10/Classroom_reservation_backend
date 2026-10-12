@@ -1,0 +1,23 @@
+{$APP_DOMAIN} {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		# SvelteKit emits build-specific script hashes in the HTML CSP meta tag.
+		# Framing needs a response header; a second fetch policy would also need every generated hash.
+		Content-Security-Policy "frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+	}
+	handle /api/* {
+		request_body {
+			max_size 3MB
+		}
+		reverse_proxy api:8000
+	}
+	handle {
+		root * /srv
+		try_files {path} /200.html
+		file_server
+	}
+}

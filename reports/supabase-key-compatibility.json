@@ -1,0 +1,38 @@
+{
+  "checked_at": "2026-10-12T18:46:25.284766+00:00",
+  "scope": "Local backend readiness and modern Supabase API-key compatibility; no production deployment performed.",
+  "fixes": [
+    "Opaque sb_ API keys are sent only as apikey; verified user JWT remains Bearer; legacy JWT key compatibility retained.",
+    "SUPABASE_SECRET_KEY alias preferred; legacy SUPABASE_SERVICE_ROLE_KEY alias retained.",
+    "Public configuration rejects sb_secret_ credentials without echoing.",
+    "Edge Function reads injected SUPABASE_SECRET_KEYS default with legacy fallback only when modern map is absent; malformed maps fail closed."
+  ],
+  "validation": {
+    "python_selected_unit_tests": 96,
+    "deno_security_tests": 4,
+    "deno_check": "pass",
+    "ruff_check": "pass",
+    "ruff_format_check": "pass",
+    "prettier_selected_check": "pass"
+  },
+  "deployment_review": {
+    "backend_build_context": "independent repository root",
+    "docker_entrypoint": "app.main:app",
+    "container_user": 10001,
+    "api_exposure": "private compose network only",
+    "trusted_proxy": "exact Caddy address 172.28.0.2",
+    "production_https_and_privileged_db_login_guards": "retained"
+  },
+  "required_external_configuration": [
+    "Set Edge Function DISPATCH_API_KEY to the exact API key used by the backend worker, especially while migrating between legacy and modern keys."
+  ],
+  "not_verified": [
+    "Docker runtime/build unavailable; no server/domain configured; production deployment paused by user.",
+    "Real Supabase/Google identity, auth hook and remote data acceptance are handled separately by root agent."
+  ],
+  "documentation": [
+    "https://supabase.com/changelog.md",
+    "https://supabase.com/docs/guides/getting-started/migrating-to-new-api-keys",
+    "https://supabase.com/docs/guides/getting-started/api-keys"
+  ]
+}

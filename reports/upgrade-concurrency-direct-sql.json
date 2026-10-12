@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-10-12T21:14:24.747282+00:00",
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.12.10",
+    "transport": "localhost PostgreSQL; mock upstream Auth"
+  },
+  "database_version": "17.11",
+  "independent_connections": 100,
+  "outcomes": {
+    "approved": 1,
+    "23P01": 99
+  },
+  "approved_rows": 1,
+  "dispatch_spread_ms": 41.196,
+  "blocked_connections_before_winner_commit": 99,
+  "explicit_transaction_overlap": true,
+  "latency": {
+    "count": 100,
+    "p50_ms": 277.155,
+    "p95_ms": 283.738,
+    "max_ms": 288.231,
+    "statuses": {}
+  },
+  "note": "Winner is deliberately held uncommitted until all 99 competing connections wait on PostgreSQL locks; these durations include that hold and are not API SLA measurements. Every losing transaction rolls back with SQLSTATE 23P01."
+}

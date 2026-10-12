@@ -1,0 +1,38 @@
+{
+  "production_config": "deploy/Caddyfile",
+  "official_release_checksum_verified": true,
+  "config_validate": "passed",
+  "scope": "Native production Caddyfile validation, built SPA deep links and Chrome CSP/hydration over loopback HTTP; Docker and real HTTPS remain deployment gates",
+  "version": "2.10.2",
+  "static_deep_links": [
+    {
+      "route": "/",
+      "serves_built_fallback": true,
+      "status": 200
+    },
+    {
+      "route": "/login",
+      "serves_built_fallback": true,
+      "status": 200
+    },
+    {
+      "route": "/account",
+      "serves_built_fallback": true,
+      "status": 200
+    },
+    {
+      "route": "/admin",
+      "serves_built_fallback": true,
+      "status": 200
+    },
+    {
+      "route": "/rooms/11111111-1111-4111-8111-111111111111",
+      "serves_built_fallback": true,
+      "status": 200
+    }
+  ],
+  "preview_listener": "loopback only",
+  "browser_probe": "reports/caddy-browser.json",
+  "browser_hydrated_routes": 5,
+  "untrusted_inline_blocked": true
+}
