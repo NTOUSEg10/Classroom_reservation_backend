@@ -1,0 +1,48 @@
+{
+  "date": "2026-10-13",
+  "timezone": "Asia/Taipei",
+  "scope": "room CSV owner import and frontend TOKEN_REFRESHED regression",
+  "backend_full_suite": {
+    "passed": 273,
+    "failed": 0,
+    "errors": 0,
+    "duration_seconds": 52.87,
+    "report": "reports/room-import-full-pytest.xml",
+    "database": "isolated loopback ntou_integration"
+  },
+  "room_import_tests": {
+    "unit_passed": 50,
+    "postgres_integration_passed": 5,
+    "report": "reports/room-import-tests.xml",
+    "offline_validation_without_database": true,
+    "invalid_input_rejected_before_connection": true,
+    "idempotence_and_uuid_preservation": true,
+    "maps_bookings_and_absent_rooms_preserved": true,
+    "late_database_error_full_rollback": true,
+    "application_role_denied": true,
+    "public_api_reads_imported_metadata": true,
+    "remote_tls_validation": "unit verification of SSL context and DSN overrides"
+  },
+  "frontend": {
+    "passed": 46,
+    "svelte_check_errors": 0,
+    "svelte_check_warnings": 0,
+    "token_refreshed_event_regression": true,
+    "natural_live_token_refresh_verified": false
+  },
+  "source_checks": {
+    "ruff_check": "passed",
+    "ruff_format_check": "passed",
+    "prettier": "passed"
+  },
+  "live_service_scope": {
+    "api_health_http_status": 200,
+    "frontend_http_status": 200,
+    "rooms": 0,
+    "applied_school_csv_to_supabase": false,
+    "demo_data_imported": false,
+    "formal_deployment": "deferred by user",
+    "device_push_verified": false,
+    "nfr_006": "previous live result failed; further local optimization deferred by user; 500ms requirement retained"
+  }
+}

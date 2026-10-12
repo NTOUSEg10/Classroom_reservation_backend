@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-12T22:53:13.967324+00:00",
+  "generated_at": "2026-10-12T23:53:16.229990+00:00",
   "environment": {
     "platform": "Windows-11-10.0.26200-SP0",
     "python": "3.12.10",
@@ -10,25 +10,25 @@
   "simultaneity": "100 tasks released by one asyncio Event; scheduler dispatch spread measured",
   "applications": {
     "count": 100,
-    "p50_ms": 537.693,
-    "p95_ms": 608.375,
-    "max_ms": 621.093,
+    "p50_ms": 564.226,
+    "p95_ms": 644.18,
+    "max_ms": 651.621,
     "statuses": {
       "201": 100
     },
-    "dispatch_spread_ms": 34.688,
+    "dispatch_spread_ms": 32.813,
     "sla_ms": 2000
   },
   "approvals": {
     "count": 100,
-    "p50_ms": 377.869,
-    "p95_ms": 435.167,
-    "max_ms": 452.405,
+    "p50_ms": 333.288,
+    "p95_ms": 380.877,
+    "max_ms": 404.74,
     "statuses": {
-      "409": 99,
-      "200": 1
+      "200": 1,
+      "409": 99
     },
-    "dispatch_spread_ms": 35.804,
+    "dispatch_spread_ms": 35.015,
     "approved_rows": 1
   }
 }

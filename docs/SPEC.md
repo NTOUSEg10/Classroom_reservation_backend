@@ -1,6 +1,6 @@
 # 海大教室借用平台 — 系統規格
 
-版本：1.4；初版規劃日期：2026-10-11；需求修訂日期：2026-10-13（Asia/Taipei）。初版先於應用程式實作建立；本次移除錄影用 Demo，完成真實 Google 本機登入與 Git 版本保存，正式部署依使用者決定暫緩；效能未達標項目保留待驗收。
+版本：1.5；初版規劃日期：2026-10-11；需求修訂日期：2026-10-13（Asia/Taipei）。初版先於應用程式實作建立；本次移除錄影用 Demo，完成真實 Google 本機登入與 Git 版本保存，新增正式教室清單匯入規劃，正式部署依使用者決定暫緩；效能未達標項目保留待驗收。
 
 發展者團隊：**林品希、陳佳昀、林良承、李曜年、侯屏嘉、洪于宸**。
 
@@ -247,6 +247,16 @@ Reservation 回應至少包含 id,user_id,room_id,starts_at,ends_at,purpose,atte
 
 未取得 Supabase 與校方資源時仍交付可重現本機 PostgreSQL 測試、可瀏覽 UI、完整部署配置。DoD 中依賴實際服務／正式資料的項目維持待驗收，不能虛報已完成。
 
+### 9.1 正式教室清單匯入（2026-10-13）
+
+使用者尚未取得校方資料，先交付 owner 專用 CSV 工具與空白格式。這是教室基礎資料匯入，不建立虛構借用或定期課程；公開週課表仍由已核准及已交付鑰匙的借用產生。採用既有 Python／Pydantic／asyncpg，不新增套件、不放寬應用程式 DB 權限、不新增業務 API。
+
+- `python -m scripts.import_rooms <CSV>` 預設離線驗證，成功僅輸出筆數，完全不連資料庫；加 `--apply` 才使用環境中的 `DATABASE_MIGRATION_URL` 寫入。DB 密碼不能放命令列，遠端連線沿用完整 TLS／hostname 驗證及 `DATABASE_SSL_CA_FILE`。
+- CSV 採 UTF-8（可含 BOM），欄位為 `code,name,building,floor,capacity,equipment,latitude,longitude,map_x,map_y,location_text,location_verified,active`；提供只有標頭的模板。設備以 `|` 分隔；空白座標代表未提供，經緯度與圖上座標各需成對，禁止非有限數值、超出範圍或重複教室代碼。布林欄位明確使用 `true`／`false`。
+- 寫入前驗證整份檔案，拒絕缺漏／多餘欄位、損毀 CSV、空檔、超限檔案、空白必要文字及非法數值。錯誤只指出列與欄位，不輸出原始資料或憑證。`location_verified` 是維運人員確認資料的聲明，工具無法取代校方查核。
+- 以 `code` 作自然鍵新增／更新，保留既有 UUID、`map_path`、所有預約及鑰匙紀錄；檔案缺席的教室不刪除。整批資料於單一 DB 交易執行，任一 DB 錯誤全筆 rollback，重複執行不新增重複教室。鎖定／查詢逾時應回報失敗，不產生部分成功。
+- 驗收：預設不連 DB；壞資料在連線前拒絕；重複匯入保持 UUID 與筆數；保留圖資、既有預約及檔案外教室；中途 SQL 失敗全批 rollback；受限應用角色不能使用此工具升權。DB 測試只使用隔離的 loopback 測試庫，真實 Supabase 尚無資料時不執行 `--apply`。
+
 ## 10. 官方文件與技能決策紀錄
 
 ### 10.1 已討論的 coding style（2026-10-12）
@@ -275,6 +285,10 @@ Google provider、Before User Created hook、精確本機 callback 已儲存並�
 資格查詢改為同一條 SQL 取得 profile 與有效違規點數，避免重複 acquire；角色於連線初始化設定，釋放保留 asyncpg 完整 reset 並還原角色，減少往返。每次請求仍即時向 Supabase 驗證及查詢帳號停權。增加 `Server-Timing: app;dur=<ms>` 區分後端處理與瀏覽器總時間，僅包含總耗時；以 mock timers 測試正常及錯誤路徑。
 
 218 項後端回歸測試與 100 筆並行申請／核准通過，SQL 競爭亦僅一筆成功。這些為隔離本機 PostgreSQL 測試；本人登入另使用真實 Supabase，兩者分開記錄。本機連 Sydney 的五筆後端資格查詢約 768–1105ms，**NFR-006 仍未達標**，不得調降 500ms 要求。正式環境需要服務區域與完整負載實測；目前正式部署由使用者暫緩。token refresh、實機推播、正式教室資料及正式 HTTPS 仍待驗收，詳見 CONNECT_REAL_SUPABASE.md 與 reports/real-google-acceptance.json。
+
+依使用者最新指示，先停止此本機環境的 NFR-006 反覆優化，繼續其他交付。500ms 是正式驗收目標，仍保留未通過紀錄；不同部署區域及網路拓樸可能改善延遲，需實測，不能承諾必達，也不以跳過驗證或快取停權資料換取數字。
+
+正式教室 CSV 工具與 `TOKEN_REFRESHED` 事件回歸完成後，本輪完整後端 273 項、前端 46 項測試通過，包含實際隔離 PostgreSQL 的匯入／rollback／權限測試。真實 Supabase 未匯入任何教室，未新增課程同步；事件單元測試不替代真實自然 refresh 驗收。證據見 `reports/room-import-full-pytest.xml`、`reports/room-import-tests.xml` 與 `docs/AUDIT_ROOM_IMPORT.md`。
 
 最新文件來源：[Prettier options](https://prettier.io/docs/options)、[Prettier installation](https://prettier.io/docs/install)、[Svelte Prettier plugin](https://github.com/sveltejs/prettier-plugin-svelte)、[GSAP matchMedia](<https://gsap.com/docs/v3/GSAP/gsap.matchMedia()/>)、[官方 GSAP skills](https://github.com/greensock/gsap-skills)、[Supabase Google OAuth](https://supabase.com/docs/guides/auth/social-login/auth-google)、[Supabase PKCE](https://supabase.com/docs/guides/auth/sessions/pkce-flow)、[Supabase JWT AMR](https://supabase.com/docs/guides/auth/jwt-fields)、[Supabase session AMR](https://github.com/supabase/auth/blob/master/internal/models/sessions.go)。已按使用者要求安裝官方 8 個 GSAP skills，動畫實作使用 core／frameworks／performance。
 

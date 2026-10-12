@@ -24,10 +24,12 @@ Copy-Item .env.example .env
 對新的空白資料庫，以環境提供 DATABASE_MIGRATION_URL 後執行：
 
 ```powershell
-.venv/Scripts/python.exe scripts/bootstrap_db.py --demo-seed
+.venv/Scripts/python.exe scripts/bootstrap_db.py
 ```
 
 bootstrap 拒絕覆寫既有 schema。已有部署只套用經審查的升級 SQL，不能重跑 bootstrap 刪除資料。應用程式使用非 superuser、非 BYPASSRLS、非表擁有者的 LOGIN，授予 ntou_backend membership；正式連線使用 TLS verify-full。首次管理員正常 Google onboarding 後，由受信任 DB 管理者依核實的 Auth UUID 設定 profiles.role='admin'；不能從表單或 metadata 升權。
+
+正式教室資料使用 [CSV 匯入說明](docs/IMPORT_ROOMS.md)與 [空白模板](data/rooms-template.csv)。工具預設只做離線驗證；指定 `--apply` 才用私有 migration 連線整批寫入，不刪除舊教室或預約。測試 seed 只供隔離測試使用，不匯入真實 Supabase。
 
 ```powershell
 .venv/Scripts/python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --no-access-log
