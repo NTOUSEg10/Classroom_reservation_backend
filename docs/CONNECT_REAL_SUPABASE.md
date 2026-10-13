@@ -42,13 +42,15 @@ Edge Function 的 DISPATCH_API_KEY 必須等於後端 worker 使用的 server ke
 - Google 串接階段後端 218 項 pytest／前端 45 項測試通過；本輪加入教室匯入與憑證更新回歸後，完整後端 273 項及前端 46 項全通過，包含 100 筆申請／核准的唯一核准回歸。Google provider 設定與本人學校帳號的完整登入均已實際驗證。
 - Dashboard 已確認 Before User Created hook 為 ENABLED，函式 `public.ntou_google_signup_gate`；Site URL 與兩個精確本機 callback 已儲存。
 - Google Cloud 專案 `ntou-classroom-reservation` 已建立品牌「海大教室借用平台」、三個基本身分 scopes 及 Web client；使用者已將憑證儲存於 Supabase。Dashboard 與真實 Auth settings API 已確認 Google 啟用，Email、anonymous 與其他 provider 停用；nonce checks 與 email 要求維持啟用。
-- 本人已完成學校 Google 授權、PKCE 回送及首次基本資料；身分 API 顯示 `onboarding_required:false`、borrower、`verified:true`。重新導航後 session 仍有效，自己的資料與借用歷史 API 回 200，借用人呼叫管理員 API 回 403。
+- 本人已完成學校 Google 授權、PKCE 回送及首次基本資料；首次驗收的身分 API 為 `onboarding_required:false`、borrower、`verified:true`。重新導航後 session 仍有效，自己的資料與借用歷史 API 回 200，當時借用人呼叫管理員 API 回 403。
 - 資格查詢重複的資料庫往返已減少，角色初始化及完整連線 reset 維持隔離；每次請求仍向 Supabase 驗證，並讀取最新停權資料。`Server-Timing` 只揭露後端總耗時，mock timers 驗證正常與錯誤回應。
 - 本機 FastAPI → Sydney Supabase 實測後端資格處理為約 768–1105ms，仍未達 NFR-006 的 500ms；本次五筆樣本不能視為正式壓測或 SLA。原要求保留，正式部署需評估服務區域並重新量測。詳見 `reports/real-google-acceptance.json`。
 - 自然 token refresh、真實裝置推播、正式教室資料、正式 HTTPS 與完整雲端壓測仍待驗收；不以 session persistence 或本機 fixture 結果替代。
 - 依使用者指示先停止本機 NFR-006 的反覆優化，500ms 目標及未達標紀錄保留；其他交付繼續進行。
 - 正式教室清單的離線 CSV 驗證／owner 交易匯入工具已建立，操作見 [IMPORT_ROOMS.md](IMPORT_ROOMS.md)。校方資料尚未提供，真實 Supabase 未寫入任何示範教室或課程。
 - 前端補上 `TOKEN_REFRESHED` 的事件回歸，驗證新的 Bearer、後端身分重驗及同一使用者通知保留。這仍不等於真實 session 自然到期更新驗收。
+- 使用者已指定目前登入的學校帳號為首位管理員。受信任 owner 交易先確認本人 UUID、Auth／profile 一致、Google 身分、已驗證且未停權及無既有管理員，再將該帳號的 role 改為 admin，同交易記錄 `first_admin_granted`。提交後確認管理員 1 名、對應操作紀錄 1 筆，profile 其他欄位及應用 DB 角色權限保留；沒有以 metadata 或公開 API 升權。
+- 刷新後實際 `/api/me` 回 admin，管理員使用者 API 回 200，`/admin` 顯示管理台。學校資料仍待蒐集，教室維持 0 間，完整真實借用／鑰匙／停權流程仍未驗收。匿名驗收結果見 `reports/first-admin-acceptance.json`；目標 UUID 與操作用 owner 設定只留在私有本機檔案。
 
 ## 真實本機登入驗收
 

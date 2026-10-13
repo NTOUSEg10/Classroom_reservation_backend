@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-13",
+  "timezone": "Asia/Taipei",
+  "scope": "user-selected current verified school account provisioned as first administrator",
+  "target_identity_source": "authenticated platform API; exact UUID retained only in private local files",
+  "school_google_identity_verified": true,
+  "profile_verified": true,
+  "profile_suspended": false,
+  "before_role": "borrower",
+  "after_role": "admin",
+  "admin_count": 1,
+  "grant_audit_count": 1,
+  "role_update_and_audit_atomic": true,
+  "other_profile_fields_preserved": true,
+  "application_role_cannot_update_profile_role": true,
+  "admin_users_http_status": 200,
+  "admin_ui_verified": true,
+  "requires_new_google_authorization": false,
+  "rooms": 0,
+  "real_booking_lifecycle_verified": false,
+  "formal_deployment": "deferred by user"
+}
