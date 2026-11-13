@@ -875,17 +875,44 @@ async def test_owner_history_cancel_and_notifications_do_not_leak(
     ).status_code == 200
 
 
+async def test_submit_to_occupied_room_returns_conflict_without_creating_records(
+    api, db, auth, borrower, other_borrower, admin
+):
+    payload = booking_payload()
+    headers = auth.headers(borrower)
+    first = await api.post("/api/reservations", headers=headers, json=payload)
+    assert first.status_code == 201
+    reservation_id = first.json()["id"]
+    approved = await api.patch(
+        f"/api/reservations/{reservation_id}/status",
+        headers=auth.headers(admin),
+        json={"status": "approved"},
+    )
+    assert approved.status_code == 200
+
+    conflict = await api.post(
+        "/api/reservations",
+        headers=auth.headers(other_borrower),
+        json=booking_payload(
+            start="2026-10-13T11:00:00+08:00",
+            end="2026-10-13T13:00:00+08:00",
+        ),
+    )
+    assert conflict.status_code == 409
+    assert conflict.json()["detail"] == "此教室時段已被核准借用，請改選時段"
+    retry = await api.post("/api/reservations", headers=headers, json=payload)
+    assert retry.status_code == 201
+    assert retry.json()["id"] == reservation_id
+    assert retry.json()["status"] == "approved"
+    assert await db.fetchval("SELECT count(*) FROM reservations") == 1
+    assert await db.fetchval("SELECT count(*) FROM audit_logs") == 2
+    assert await db.fetchval("SELECT count(*) FROM notifications") == 2
+
+
 async def test_partial_overlap_blocked_adjacent_available_and_public_schedule_redacted(
     api, auth, borrower, admin
 ):
     original = await submit(api, auth, borrower)
-    assert (
-        await api.patch(
-            f"/api/reservations/{original['id']}/status",
-            headers=auth.headers(admin),
-            json={"status": "approved"},
-        )
-    ).status_code == 200
     partial = await submit(
         api,
         auth,
@@ -893,6 +920,13 @@ async def test_partial_overlap_blocked_adjacent_available_and_public_schedule_re
         start="2026-10-13T11:00:00+08:00",
         end="2026-10-13T13:00:00+08:00",
     )
+    assert (
+        await api.patch(
+            f"/api/reservations/{original['id']}/status",
+            headers=auth.headers(admin),
+            json={"status": "approved"},
+        )
+    ).status_code == 200
     assert (
         await api.patch(
             f"/api/reservations/{partial['id']}/status",

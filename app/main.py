@@ -33,6 +33,7 @@ from .config import Settings, database_ssl_context
 from .database import (
     RESERVATION_SELECT,
     audit,
+    has_booking_conflict,
     initialize_connection,
     notify,
     points_for,
@@ -516,6 +517,10 @@ def create_app(
                 raise HTTPException(404, "教室不存在或暫停借用")
             if data.attendees > room["capacity"]:
                 raise HTTPException(422, "借用人數超過教室容量")
+            if await has_booking_conflict(
+                conn, data.room_id, data.starts_at, data.ends_at
+            ):
+                raise HTTPException(409, "此教室時段已被核准借用，請改選時段")
             reservation_id = await conn.fetchval(
                 """INSERT INTO reservations(user_id,room_id,starts_at,ends_at,purpose,attendees,mode,request_id,created_at,updated_at)
               VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$9) RETURNING id""",
@@ -608,11 +613,11 @@ def create_app(
                     raise HTTPException(409, "教室暫停借用")
                 if row["ends_at"] <= now:
                     raise HTTPException(409, "借用時段已結束，無法核准")
-                if await conn.fetchval(
-                    """SELECT EXISTS(SELECT 1 FROM reservations WHERE room_id=$1 AND id<>$2
-                  AND status IN ('approved','checked_out') AND starts_at<$4 AND ends_at>$3)""",
+                # Only a pending reservation can enter this transition, so it is
+                # already excluded by the occupying-status filter.
+                if await has_booking_conflict(
+                    conn,
                     row["room_id"],
-                    row["id"],
                     row["starts_at"],
                     row["ends_at"],
                 ):

@@ -23,7 +23,7 @@
 - 校方教室清單與樓層圖尚待核實。示範教室在 UI 明確標示，不能宣稱座標已獲校方確認；欄位支援精確經緯度、樓層、位置文字與校方確認旗標。正式圖資及 Supabase／Google OAuth 外部服務驗收仍為上線關卡。
 - 依 2026-10-12 新需求，校園身分以 Supabase 驗證的 Google 帳號與精確信箱網域 `email.ntou.edu.tw` 為準，取消名冊比對前置條件。證號仍須填入 6–16 位英數，作為校園證件識別及唯一欄位；此格式不證明證號真實所有權，校園歸屬證明來自 Google 校園信箱。使用者不可自填角色或 verified。
 - 即時借用指開始時間接近現在的申請，仍需管理員審核。開始時間不得早於現在 5 分鐘以上；預約最多 90 日，每筆 30 分鐘到 8 小時，開放 08:00–22:00，同日。時間儲存 UTC，輸入／顯示 Asia/Taipei，區間一律左閉右開 `[start,end)`。
-- pending 允許競爭申請，不保證取得教室；approved 和 checked_out 占用時段。核准發生衝突回 409。completed 保留歷史、cancelled/rejected 釋放。
+- pending 允許競爭申請，不保證取得教室；approved 和 checked_out 占用時段。新申請與已占用時段重疊時回 409，不建單；核准時再檢查，失敗的待審狀態維持原樣。completed 保留歷史、cancelled/rejected 釋放。
 - 違規達 3 點自動停權；任何有效停權都禁止新申請和核准，管理員可恢復資格，恢復時須清除或調整未結案違規。未完成借用由管理員決定取消，避免自動遺失鑰匙責任。
 - 本版僅提供 Google OAuth，不接收或儲存平台密碼；Google 密碼由 Google 處理，Supabase 管理 OAuth session。NFR-011 的密碼雜湊要求在平台無密碼模型下以「不接收／不儲存密碼」驗收，傳輸仍需 HTTPS。
 - 新的 Google-only 要求取代 NFR-009 原有平台密碼登入提示。平台改明示「請使用學校 Google 帳號」、「登入已失效」或「請完成基本資料」，不洩露其他使用者個資；Google 端的帳號／密碼提示由 Google 控制，不能虛報仍測試平台密碼錯誤。
@@ -158,6 +158,8 @@ Prefix `/api`；JSON UTF-8；UUID；時間 ISO8601 必須附 timezone。驗證�
 | DELETE /push-subscriptions      | `{endpoint}` → 204                                                                        | 本人                                          |
 | POST /admin/rooms/{id}/map      | 圖檔（SVG 禁止主動內容、限制 MIME/大小）→ signed URL                                      | 管理員；Storage                               |
 
+新借用申請若與已核准或已交付鑰匙的時段重疊，POST /reservations 回 409，不建立新紀錄。
+
 申請範例：
 
 ```json
@@ -176,7 +178,7 @@ Reservation 回應至少包含 id,user_id,room_id,starts_at,ends_at,purpose,atte
 
 ## 6. 防呆與邊界條件處理（Edge Cases）
 
-- **高併發**：所有核准共享 room row lock；GiST 仍保證 DB 不變量。相鄰時段可各自核准，部分重疊也阻擋；pending 可並存。同步 barrier 發出 100 個申請，再 100 個核准，必須唯一勝出。直接並行 SQL 不經 API 也要唯一。
+- **高併發**：新申請在 room share lock 下檢查是否已占用，只有待審的時段可接受多筆；同一請求重送仍回既有紀錄。核准持有 room write lock 再檢查，GiST 仍保證 DB 不變量。相鄰時段可各自核准，部分重疊也阻擋。同步 barrier 發出 100 個申請，再 100 個核准，必須唯一勝出。直接並行 SQL 不經 API 也要唯一。
 - **停權競爭**：申請與停權更新共用 profile row lock。停權交易提交後，下一筆申請重新讀資格，無快取，5s 內阻擋；同樣禁止核准已停權者。
 - **通知失敗**：notification 與狀態同交易，worker 重啟可續傳，失敗有退避與失敗欄位。410/404 subscription 清理；只接受允許的公共 Web Push host，以防 SSRF。超過 3s 顯示監控警示並保留通知，不能偷偷宣稱送達。
 - **地圖**：同源圖資掛載後立即計時 2s，逾時取消／忽略遲到結果，onerror 一樣顯示具體 building/floor/location_text；文字一直可見。mock timers 精確驗證 1999/2000ms。座標缺漏只展示文字，未確認位置標記示範。
