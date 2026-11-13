@@ -28,6 +28,16 @@ async def points_for(conn, user_id):
     )
 
 
+async def has_booking_conflict(conn, room_id, start, end):
+    return await conn.fetchval(
+        """SELECT EXISTS(SELECT 1 FROM reservations WHERE room_id=$1
+          AND status IN ('approved','checked_out') AND starts_at<$3 AND ends_at>$2)""",
+        room_id,
+        start,
+        end,
+    )
+
+
 async def audit(
     conn,
     actor_id,
