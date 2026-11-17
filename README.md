@@ -4,6 +4,10 @@
 
 FastAPI / Python / Pydantic 負責業務、權限與 API；Supabase 負責 PostgreSQL、Google Auth、Realtime、Storage 與推播 Edge Function。前端為獨立的 [Classroom_reservation_frontend](https://github.com/NTOUSEg10/Classroom_reservation_frontend) repository。
 
+## Iteration 2 交付
+
+[Iteration 2 功能與驗收紀錄](docs/ITERATION_2.md) 對照 12 張工作卡，列出操作入口、各項驗收依據，以及這次新增的重複申請防護。
+
 完整需求及已討論的 coding style：[docs/SPEC.md](docs/SPEC.md)。新版 Google OAuth、GSAP 與 repository 拆分的結果見[測試報告](docs/UPGRADE_TEST_REPORT.md)及[工程審查](docs/UPGRADE_AUDIT_REPORT.md)。[2026-10-11 歷史報告](docs/TEST_REPORT.md)保留原密碼／名冊版本的證據。
 
 2026-10-13 已移除錄影用 Demo，保留週課表修正與前後週導覽。真實服務的本機設定見 [docs/CONNECT_REAL_SUPABASE.md](docs/CONNECT_REAL_SUPABASE.md)。目前尚無正式伺服器／網域，使用者已決定暫緩正式部署；Docker／HTTPS 設定保留供日後使用。
