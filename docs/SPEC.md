@@ -23,7 +23,7 @@
 - 校方教室清單與樓層圖尚待核實。示範教室在 UI 明確標示，不能宣稱座標已獲校方確認；欄位支援精確經緯度、樓層、位置文字與校方確認旗標。正式圖資及 Supabase／Google OAuth 外部服務驗收仍為上線關卡。
 - 依 2026-10-12 新需求，校園身分以 Supabase 驗證的 Google 帳號與精確信箱網域 `email.ntou.edu.tw` 為準，取消名冊比對前置條件。證號仍須填入 6–16 位英數，作為校園證件識別及唯一欄位；此格式不證明證號真實所有權，校園歸屬證明來自 Google 校園信箱。使用者不可自填角色或 verified。
 - 即時借用指開始時間接近現在的申請，仍需管理員審核。開始時間不得早於現在 5 分鐘以上；預約最多 90 日，每筆 30 分鐘到 8 小時，開放 08:00–22:00，同日。時間儲存 UTC，輸入／顯示 Asia/Taipei，區間一律左閉右開 `[start,end)`。
-- pending 允許競爭申請，不保證取得教室；approved 和 checked_out 占用時段。核准發生衝突回 409。completed 保留歷史、cancelled/rejected 釋放。
+- 不同借用人的 pending 申請可以競爭同一教室時段；同一借用人對同一教室已有重疊的 pending、approved 或 checked_out 申請時，新申請回 409。時段相接可申請，且同一 request_id 重試回原申請。approved 和 checked_out 占用時段，核准衝突回 409。completed 保留歷史，cancelled 和 rejected 釋放時段。
 - 違規達 3 點自動停權；任何有效停權都禁止新申請和核准，管理員可恢復資格，恢復時須清除或調整未結案違規。未完成借用由管理員決定取消，避免自動遺失鑰匙責任。
 - 本版僅提供 Google OAuth，不接收或儲存平台密碼；Google 密碼由 Google 處理，Supabase 管理 OAuth session。NFR-011 的密碼雜湊要求在平台無密碼模型下以「不接收／不儲存密碼」驗收，傳輸仍需 HTTPS。
 - 新的 Google-only 要求取代 NFR-009 原有平台密碼登入提示。平台改明示「請使用學校 Google 帳號」、「登入已失效」或「請完成基本資料」，不洩露其他使用者個資；Google 端的帳號／密碼提示由 Google 控制，不能虛報仍測試平台密碼錯誤。
@@ -93,7 +93,7 @@ AMR 只表示 OAuth 類型，沒有 provider 名稱，因此另外要求可信 a
 
 1. Google OAuth／PKCE → FastAPI 驗證校園 Google 身分 → 首次基本資料 onboarding → borrower profile；不再由 FastAPI 建立 email/password Auth 帳號或查名冊。
 2. 每個保護 API 用 Supabase get-user 驗證 Bearer 並重新查 DB profile，權限不依賴前端或過期 role claim；Google session 刷新仍由 supabase-js 管理。
-3. 申請交易先 `SELECT profiles ... FOR UPDATE`（與停權更新共用鎖），確認 active/verified/違規，再插入 pending。寫 audit 和 notification 同一交易，任何一步失敗全部 rollback。
+3. 申請交易先 `SELECT profiles ... FOR UPDATE`（與停權更新共用鎖），確認 active/verified/違規，檢查本人同教室的有效申請沒有時間重疊，再插入 pending。寫 audit 和 notification 同一交易，任何一步失敗全部 rollback。
 4. 審核鎖定 reservation、借用人及 room，確認角色和合法狀態；核准更新由 GiST 排他約束再防守。鎖等待有 timeout，映射成 409/503 可重試，不能返回假成功。
 5. 通知 row 在同一交易持久化，Realtime 隨 WAL 發出。背景 worker 從 DB 領取未發送訊息，呼叫 Edge Function；失敗保留 attempts/error/next_attempt_at，指數退避且可在通知中心補讀。前端 2s 補讀與重新連線補讀防止漏事件；不暴露其他人的通知。
 6. Storage 只存校方樓層圖；private bucket 與管理員上傳策略，公開顯示用有限時 signed URL；無校方圖時同源 SVG＋位置文字仍可使用。

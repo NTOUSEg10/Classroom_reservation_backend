@@ -462,7 +462,16 @@ async def test_onboarding_rate_limits_account_and_ip_then_recovers(
 async def test_history_pagination_and_status_filter_preserve_owner_scope(
     api, auth, borrower, other_borrower
 ):
-    owned = [await submit(api, auth, borrower) for _ in range(3)]
+    owned = [
+        await submit(
+            api,
+            auth,
+            borrower,
+            start=f"2026-10-13T{hour:02d}:00:00+08:00",
+            end=f"2026-10-13T{hour + 2:02d}:00:00+08:00",
+        )
+        for hour in (10, 12, 14)
+    ]
     await submit(api, auth, other_borrower)
     headers = auth.headers(borrower)
     pages = [
@@ -726,6 +735,40 @@ async def test_immediate_mode(api, auth, borrower):
     assert booking["mode"] == "immediate" and booking["status"] == "pending"
 
 
+async def test_distinct_requests_cannot_double_book_same_room_for_one_borrower(
+    api, db, auth, borrower
+):
+    headers = auth.headers(borrower)
+    responses = await asyncio.gather(
+        api.post("/api/reservations", headers=headers, json=booking_payload()),
+        api.post("/api/reservations", headers=headers, json=booking_payload()),
+    )
+    assert sorted(response.status_code for response in responses) == [201, 409]
+    booking = next(
+        response.json() for response in responses if response.status_code == 201
+    )
+    assert await db.fetchval("SELECT count(*) FROM reservations") == 1
+
+    overlap = await api.post(
+        "/api/reservations",
+        headers=headers,
+        json=booking_payload(
+            start="2026-10-13T11:00:00+08:00",
+            end="2026-10-13T13:00:00+08:00",
+        ),
+    )
+    assert overlap.status_code == 409
+    assert "時段重疊" in overlap.json()["detail"]
+
+    cancelled = await api.patch(
+        f"/api/reservations/{booking['id']}/status",
+        headers=headers,
+        json={"status": "cancelled"},
+    )
+    assert cancelled.status_code == 200
+    assert (await submit(api, auth, borrower))["id"] != booking["id"]
+
+
 @pytest.mark.parametrize(
     "changes",
     [
@@ -876,7 +919,7 @@ async def test_owner_history_cancel_and_notifications_do_not_leak(
 
 
 async def test_partial_overlap_blocked_adjacent_available_and_public_schedule_redacted(
-    api, auth, borrower, admin
+    api, auth, borrower, other_borrower, admin
 ):
     original = await submit(api, auth, borrower)
     assert (
@@ -889,7 +932,7 @@ async def test_partial_overlap_blocked_adjacent_available_and_public_schedule_re
     partial = await submit(
         api,
         auth,
-        borrower,
+        other_borrower,
         start="2026-10-13T11:00:00+08:00",
         end="2026-10-13T13:00:00+08:00",
     )
@@ -944,6 +987,9 @@ async def test_suspension_applies_to_existing_token_within_five_seconds(
 ):
     headers = auth.headers(borrower)
     pending = await submit(api, auth, borrower)
+    new_request = booking_payload(
+        start="2026-10-13T12:00:00+08:00", end="2026-10-13T14:00:00+08:00"
+    )
     started = time.perf_counter()
     suspend = await api.patch(
         f"/api/admin/users/{borrower['id']}",
@@ -952,9 +998,7 @@ async def test_suspension_applies_to_existing_token_within_five_seconds(
     )
     assert suspend.status_code == 200
     assert (
-        await api.post(
-            "/api/reservations", headers=headers, json=booking_payload()
-        )
+        await api.post("/api/reservations", headers=headers, json=new_request)
     ).status_code == 403
     assert time.perf_counter() - started < 5
     assert (
@@ -971,9 +1015,7 @@ async def test_suspension_applies_to_existing_token_within_five_seconds(
     )
     assert restored.status_code == 200
     assert (
-        await api.post(
-            "/api/reservations", headers=headers, json=booking_payload()
-        )
+        await api.post("/api/reservations", headers=headers, json=new_request)
     ).status_code == 201
 
 

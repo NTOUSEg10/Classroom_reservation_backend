@@ -516,6 +516,22 @@ def create_app(
                 raise HTTPException(404, "教室不存在或暫停借用")
             if data.attendees > room["capacity"]:
                 raise HTTPException(422, "借用人數超過教室容量")
+            if await conn.fetchval(
+                """SELECT EXISTS(
+                    SELECT 1 FROM reservations
+                    WHERE user_id=$1 AND room_id=$2
+                      AND status IN ('pending','approved','checked_out')
+                      AND starts_at<$4 AND ends_at>$3
+                )""",
+                profile["id"],
+                data.room_id,
+                data.starts_at,
+                data.ends_at,
+            ):
+                raise HTTPException(
+                    409,
+                    "你已有同一教室且時段重疊的借用申請，請至「我的借用」查看。",
+                )
             reservation_id = await conn.fetchval(
                 """INSERT INTO reservations(user_id,room_id,starts_at,ends_at,purpose,attendees,mode,request_id,created_at,updated_at)
               VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$9) RETURNING id""",
